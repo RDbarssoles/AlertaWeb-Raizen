@@ -1,0 +1,17 @@
+<div class="titulo">
+  <h2>Cadastro de Gerente</h2>
+  <button mat-raised-button color="primary" (click)="novoGerente()">Novo Revisor</button>
+</div>
+
+<app-gerente-form
+  *ngIf="abrirForm"
+  [tipos]="tipos"
+  [gerente]="selecionado"
+  (salvou)="aoSalvar()"
+  (cancelou)="aoCancelar()">
+</app-gerente-form>
+
+<app-gerente-grid
+  [gerentes]="gerentes"
+  (editar)="editarGerente($event)"
+></app-gerente-grid>
