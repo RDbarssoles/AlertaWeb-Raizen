@@ -1,11 +1,17 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ViewGerente } from '../../models/view-gerente.model';
 
 @Component({
   selector: 'app-gerente-grid',
-  imports: [],
-  templateUrl: './gerente-grid.html',
-  styleUrl: './gerente-grid.css'
+  templateUrl: './gerente-grid.component.html',
+  standalone: false,
+  styleUrls: ['./gerente-grid.component.css']
 })
-export class GerenteGrid {
+export class GerenteGridComponent {
+  @Input() gerentes: ViewGerente[] = [];
+  @Output() editar = new EventEmitter<ViewGerente>();
 
+  onEdit(gerente: ViewGerente) {
+    this.editar.emit(gerente);
+  }
 }

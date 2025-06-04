@@ -3,10 +3,10 @@ import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
+  standalone: false,
+  templateUrl: './app.component.html',
   styleUrl: './app.css'
 })
-export class App {
+export class AppComponent {
   protected title = 'AlertaWeb-Raizen';
 }

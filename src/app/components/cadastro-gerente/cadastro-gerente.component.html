@@ -1,17 +1,217 @@
-<div class="titulo">
-  <h2>Cadastro de Gerente</h2>
-  <button mat-raised-button color="primary" (click)="novoGerente()">Novo Revisor</button>
-</div>
+<!-- src/app/cadastro-gerente/cadastro-gerente.component.html -->
 
-<app-gerente-form
-  *ngIf="abrirForm"
-  [tipos]="tipos"
-  [gerente]="selecionado"
-  (salvou)="aoSalvar()"
-  (cancelou)="aoCancelar()">
-</app-gerente-form>
+<mat-card class="card-root">
+  <!-- TÍTULO DO CARD -->
+  <mat-card-header>
+    <mat-card-title>
+      <h1>Cadastro de Gerente</h1>
+    </mat-card-title>
+  </mat-card-header>
 
-<app-gerente-grid
-  [gerentes]="gerentes"
-  (editar)="editarGerente($event)"
-></app-gerente-grid>
+  <mat-divider></mat-divider>
+
+  <!-- ÁREA DE VALIDAÇÕES: aparece somente se houver itens em validacoes[] -->
+  <div *ngIf="validacoes.length > 0" class="alert-validacoes">
+    <mat-icon color="warn">error_outline</mat-icon>
+    <div>
+      <span class="texto-alerta">Existem erros no formulário:</span>
+      <ul>
+        <li *ngFor="let validacao of validacoes">
+          <mat-icon class="bullet-icon">lens</mat-icon>
+          {{ validacao }}
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- FORMULÁRIO PARA DADOS DO REVISOR -->
+  <mat-card-content>
+    <h2 class="titulo-form">Dados do Gerente</h2>
+    <!-- Trecho completo do <form> com as correções necessárias -->
+    <form [formGroup]="gerenteForm" class="form-container">
+      <!-- CAMPO 1: Revisor -->
+      <mat-form-field appearance="outline" class="campo-form">
+        <mat-label>Revisor <span class="campo-obrigatorio">*</span></mat-label>
+        <input
+          matInput
+          placeholder="Informe o login do revisor"
+          formControlName="gerente"
+        />
+        <mat-error *ngIf="gerenteForm.get('gerente')?.hasError('required')">
+          Revisor é obrigatório
+        </mat-error>
+      </mat-form-field>
+
+      <!-- CAMPO 2: Nível do Revisor -->
+      <mat-form-field appearance="outline" class="campo-form">
+        <mat-label>Nível do Revisor <span class="campo-obrigatorio">*</span></mat-label>
+        <mat-select formControlName="tipoGerente" placeholder="Selecione um nível">
+          <mat-option *ngFor="let tipo of tiposGerente" [value]="tipo.CdTipoGerente">
+            {{ tipo.NmTipoGerente }}
+          </mat-option>
+        </mat-select>
+        <mat-error *ngIf="gerenteForm.get('tipoGerente')?.hasError('required')">
+          Nível do Revisor é obrigatório
+        </mat-error>
+      </mat-form-field>
+
+      <!-- SUB‐FORM GROUP: Hierarquia -->
+      <div formGroupName="hierarquia" class="hierarquia-container">
+        <!-- Sequencial Completo -->
+        <mat-form-field appearance="outline" class="campo-form hierarquia-item">
+          <mat-label>Sequencial</mat-label>
+          <input
+            matInput
+            placeholder="Sequencial completo"
+            formControlName="sequencialCompleto"
+          />
+        </mat-form-field>
+
+        <!-- Polo -->
+        <mat-form-field appearance="outline" class="campo-form hierarquia-item">
+          <mat-label>Polo</mat-label>
+          <mat-select formControlName="polo" placeholder="Selecione um polo">
+            <mat-option *ngFor="let p of hierarquia.polos" [value]="p.id">
+              {{ p.nome }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Unidade -->
+        <mat-form-field appearance="outline" class="campo-form hierarquia-item">
+          <mat-label>Unidade</mat-label>
+          <mat-select formControlName="unidade" placeholder="Selecione uma unidade">
+            <mat-option *ngFor="let u of hierarquia.unidades" [value]="u.id">
+              {{ u.nome }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <!-- BOTÕES: Salvar e Cancelar -->
+      <div class="acoes-form">
+        <button mat-flat-button color="primary" (click)="gravarUsuario()">
+          <mat-icon>save</mat-icon>
+          Salvar
+        </button>
+        <button
+          mat-stroked-button
+          color="warn"
+          (click)="gerenteForm.reset(); selection.clear();"
+        >
+          <mat-icon>cancel</mat-icon>
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+
+  <mat-divider></mat-divider>
+
+  <!-- ÁREA DA TABELA: conteiner de toolbar + tabela + paginação -->
+  <mat-card-content>
+
+    <!-- TABELA (mat-table) -->
+    <div class="table-container">
+      <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8">
+
+        <!-- COLUNA: Checkbox para seleção de todas / linha a linha -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox
+              (change)="$event ? masterToggle() : null"
+              [checked]="isAllSelected()"
+              [indeterminate]="selection.hasValue() && !isAllSelected()">
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let row">
+            <mat-checkbox (click)="$event.stopPropagation()"
+                          (change)="$event ? selection.toggle(row) : null"
+                          [checked]="selection.isSelected(row)">
+            </mat-checkbox>
+          </td>
+        </ng-container>
+
+        <!-- COLUNA: Codigo sequencial -->
+        <ng-container matColumnDef="CdSeqGerente">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>#</th>
+          <td mat-cell *matCellDef="let element">{{ element.CdSeqGerente }}</td>
+        </ng-container>
+
+        <!-- COLUNA: Login -->
+        <ng-container matColumnDef="NmUsuGerente">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Login</th>
+          <td mat-cell *matCellDef="let element">{{ element.NmUsuGerente }}</td>
+        </ng-container>
+
+        <!-- COLUNA: Nome -->
+        <ng-container matColumnDef="NmUsuarioCompleto">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nome</th>
+          <td mat-cell *matCellDef="let element">{{ element.NmUsuarioCompleto }}</td>
+        </ng-container>
+
+        <!-- COLUNA: Hierarquia (completo) -->
+        <ng-container matColumnDef="DsNivelCompleto">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Hierarquia</th>
+          <td mat-cell *matCellDef="let element">{{ element.DsNivelCompleto }}</td>
+        </ng-container>
+
+        <!-- COLUNA: Polo -->
+        <ng-container matColumnDef="NmPolo">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Polo</th>
+          <td mat-cell *matCellDef="let element">{{ element.NmPolo }}</td>
+        </ng-container>
+
+        <!-- COLUNA: Unidade -->
+        <ng-container matColumnDef="NmUnidade">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Unidade</th>
+          <td mat-cell *matCellDef="let element">{{ element.NmUnidade }}</td>
+        </ng-container>
+
+        <!-- COLUNA: Nível do Revisor -->
+        <ng-container matColumnDef="NmTipoGerente">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Nível–Revisor</th>
+          <td mat-cell *matCellDef="let element">{{ element.NmTipoGerente }}</td>
+        </ng-container>
+
+        <!-- COLUNA: Ações (ícones de excluir/editar/etc.) -->
+        <ng-container matColumnDef="acoes">
+          <th mat-header-cell *matHeaderCellDef>Ações</th>
+          <td mat-cell *matCellDef="let element">
+            <!-- Botão “Excluir” -->
+            <button mat-icon-button color="warn" (click)="removerGerente(element)" matTooltip="Excluir">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+
+            <!-- Se quiser ter botão de editar futuramente, por exemplo: -->
+            <!--
+            <button mat-icon-button color="primary" (click)="editarGerente(element)" matTooltip="Editar">
+              <mat-icon>edit</mat-icon>
+            </button>
+            -->
+          </td>
+        </ng-container>
+
+        <!-- Cabeçalhos e linhas da tabela -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+            (click)="selection.toggle(row)"
+            [class.selected]="selection.isSelected(row)">
+        </tr>
+      </table>
+
+      <!-- Mensagem “Nenhum dado” se não houver itens -->
+      <div *ngIf="dataSource.data.length === 0" class="nenhum-dado">
+        <mat-icon>info_outline</mat-icon>
+        Nenhum revisor encontrado.
+      </div>
+
+      <!-- PAGINAÇÃO -->
+      <mat-paginator
+        [pageSizeOptions]="[5, 10, 20]"
+        showFirstLastButtons
+        aria-label="Selecionar página">
+      </mat-paginator>
+    </div>
+  </mat-card-content>
+</mat-card>

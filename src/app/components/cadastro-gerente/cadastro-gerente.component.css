@@ -1,0 +1,175 @@
+/* src/app/cadastro-gerente/cadastro-gerente.component.css */
+
+/* ==================== CARD PRINCIPAL ==================== */
+.card-root {
+  max-width: 1000px;
+  margin: 24px auto;
+  padding: 0; /* O próprio mat-card já tem espaçamento interno */
+}
+
+/* ==================== TÍTULOS E DIVISÕES ==================== */
+.titulo-form {
+  margin-bottom: 16px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.titulo-grid {
+  margin-bottom: 8px;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+/* ==================== ALERTA DE VALIDAÇÕES ==================== */
+.alert-validacoes {
+  display: flex;
+  background-color: #fff8e1; /* amarelo claro */
+  border: 1px solid #ffecb3;
+  border-radius: 4px;
+  padding: 12px;
+  margin: 16px;
+}
+
+.alert-validacoes mat-icon {
+  margin-right: 12px;
+  color: #ff6f00;
+  font-size: 24px;
+}
+
+.alert-validacoes ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.alert-validacoes li {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #5d4037;
+  margin-top: 4px;
+}
+
+.alert-validacoes .bullet-icon {
+  font-size: 8px;
+  margin-right: 8px;
+  color: #5d4037;
+}
+
+.texto-alerta {
+  font-weight: 600;
+  color: #5d4037;
+}
+
+/* ==================== FORMULÁRIO ==================== */
+.form-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+}
+
+.campo-form {
+  flex: 1 1 200px; /* cada campo tenta ocupar pelo menos 200px */
+  min-width: 200px;
+}
+
+/* Para agrupar os selects de hierarquia lado a lado */
+.hierarquia-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  width: 100%;
+  margin-top: 8px;
+}
+.hierarquia-item {
+  flex: 1 1 200px;
+  min-width: 200px;
+}
+
+/* Marcação do “*” para campo obrigatório em vermelho */
+.campo-obrigatorio {
+  color: #d32f2f;
+}
+
+/* Área de botões Salvar / Cancelar */
+.acoes-form {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  width: 100%;
+}
+
+/* ==================== TOOLBAR DA TABELA ==================== */
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  margin-top: 32px;
+  margin-bottom: 8px;
+}
+.table-toolbar button {
+  margin-right: 8px;
+}
+
+/* Este “span.spacer” deve empurrar o restante para a direita */
+.spacer {
+  flex: 1 1 auto;
+}
+
+/* Campo de busca específico */
+.campo-busca {
+  width: 280px;
+  margin-right: 8px;
+}
+
+/* ==================== TABELA ==================== */
+.table-container {
+  max-height: 400px; /* ou ajuste conforme preferência */
+  overflow: auto;
+}
+
+table.mat-table {
+  width: 100%;
+  min-width: 800px; /* para não “quebrar” muito rápido em telas menores */
+}
+
+/* Estilização de linhas selecionadas */
+tr.mat-row.selected {
+  background-color: rgba(0, 150, 136, 0.1); /* teal claro */
+}
+
+/* Mensagem caso não haja dados */
+.nenhum-dado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 24px 0;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 16px;
+  gap: 8px;
+}
+
+/* ==================== PAGINATOR ==================== */
+/* Se quiser personalizar margens do paginator */
+.mat-paginator {
+  padding: 0 16px 8px;
+}
+
+/* ============== STYLES PARA SNACKBAR ============== */
+.snackbar-success {
+  background-color: #4caf50 !important;
+  color: #fff !important;
+}
+.snackbar-error {
+  background-color: #f44336 !important;
+  color: #fff !important;
+}
+.snackbar-warn {
+  background-color: #ff9800 !important;
+  color: #fff !important;
+}
+.snackbar-info {
+  background-color: #2196f3 !important;
+  color: #fff !important;
+}
