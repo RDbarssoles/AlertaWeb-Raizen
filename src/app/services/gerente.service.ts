@@ -6,7 +6,7 @@ import { Observable, of } from 'rxjs';
   providedIn: 'root'
 })
 export class GerenteService {
-  
+  private nextId = 0;
   private apiUrl = 'http://api.example.com'; // Cambiar por la URL real de la API
 
   private gerentesMock: any[] = [        // começa com um registro
@@ -69,13 +69,14 @@ export class GerenteService {
   /** POST – inclui novo gerente */
   incluirGerente(gerente: any): Observable<any> {
     // Emula auto-incremento
+    
     const proxId = this.gerentesMock.length
       ? Math.max(...this.gerentesMock.map(g => g.CdSeqGerente)) + 1
       : 1;
 
     console.log('Incluindo gerente:', gerente);
     const registro = {
-      CdSeqGerente: proxId,
+      CdSeqGerente: this.nextId++,
       NmUsuarioCompleto: gerente.NmUsuGerente,          // preencha se tiver este dado
       NmTipoGerente: this._traduzTipo(gerente.CdTipoGerente),                  // preencha se tiver este dado
       NmUsuGerente: gerente.CdNivelSequencial,
@@ -90,11 +91,15 @@ export class GerenteService {
   }
 
   /** DELETE – remove */
-  excluirGerente(gerente: any): Observable<any> {
-    this.gerentesMock = this.gerentesMock
-      .filter(g => g.CdSeqGerente !== gerente.CdSeqGerente);
+  excluirGerente(gerente: { CdSeqGerente: number }): Observable<any> {
+    // Filtra fora o item cujo CdSeqGerente bate
+    this.gerentesMock = this.gerentesMock.filter(
+      g => g.CdSeqGerente !== gerente.CdSeqGerente
+    );
+    // Retorna um `of(null)` simulando que a API retornou sucesso sem payload
     return of(null);
   }
+
 
   private _traduzTipo(cd: string): string {
     const tipo = [

@@ -237,6 +237,40 @@ private _montarRegistroGrid(dto: Gerente, seq: number): any {
     }
   }
 
+   excluirGerente(row: any): void {
+    // 1) Confirmação simples
+    const confirmar = confirm('Deseja realmente remover este gerente?');
+    if (!confirmar) {
+      return;
+    }
+
+    // 2) Chama o service para excluir
+    this.gerenteService.excluirGerente({ CdSeqGerente: row.CdSeqGerente }).subscribe({
+      next: () => {
+        // 3) Atualiza o dataSource.data removendo este item
+        this.dataSource.data = this.dataSource.data.filter(
+          g => g.CdSeqGerente !== row.CdSeqGerente
+        );
+        // 4) Re-renderiza a tabela (opcional, mas recomendado)
+        this.table.renderRows();
+
+        // 5) Exibe feedback de sucesso
+        this.snackBar.open('Gerente excluído com sucesso!', 'OK', {
+          duration: 3000,
+          panelClass: ['snackbar-success']
+        });
+        // 6) Deseleciona caso estivesse selecionado
+        this.selection.deselect(row);
+      },
+      error: err => {
+        this.snackBar.open(`Erro ao excluir: ${err.message}`, 'OK', {
+          duration: 4000,
+          panelClass: ['snackbar-error']
+        });
+      }
+    });
+  }
+
   /** Retorna se todas as linhas estão selecionadas */
   isAllSelected() {
     const numSelected = this.selection.selected.length;
