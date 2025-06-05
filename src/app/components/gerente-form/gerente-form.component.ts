@@ -43,7 +43,7 @@ export class GerenteFormComponent implements OnInit {
       return;
     }
     const novo: Gerente = this.form.value;
-    this.gerenteService.incluirGerente([novo]).subscribe(() => {
+    this.gerenteService.incluirGerente(novo).subscribe(() => {
       this.salvou.emit();
       this.form.reset();
     });

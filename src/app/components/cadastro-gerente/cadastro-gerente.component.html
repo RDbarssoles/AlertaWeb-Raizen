@@ -31,7 +31,7 @@
     <form [formGroup]="gerenteForm" class="form-container">
       <!-- CAMPO 1: Revisor -->
       <mat-form-field appearance="outline" class="campo-form">
-        <mat-label>Revisor <span class="campo-obrigatorio">*</span></mat-label>
+        <mat-label>Revisor <span class="campo-obrigatorio"></span></mat-label>
         <input
           matInput
           placeholder="Informe o login do revisor"
@@ -44,7 +44,7 @@
 
       <!-- CAMPO 2: Nível do Revisor -->
       <mat-form-field appearance="outline" class="campo-form">
-        <mat-label>Nível do Revisor <span class="campo-obrigatorio">*</span></mat-label>
+        <mat-label>Nível do Revisor <span class="campo-obrigatorio"></span></mat-label>
         <mat-select formControlName="tipoGerente" placeholder="Selecione um nível">
           <mat-option *ngFor="let tipo of tiposGerente" [value]="tipo.CdTipoGerente">
             {{ tipo.NmTipoGerente }}
@@ -71,8 +71,8 @@
         <mat-form-field appearance="outline" class="campo-form hierarquia-item">
           <mat-label>Polo</mat-label>
           <mat-select formControlName="polo" placeholder="Selecione um polo">
-            <mat-option *ngFor="let p of hierarquia.polos" [value]="p.id">
-              {{ p.nome }}
+            <mat-option *ngFor="let p of polos" [value]="p.CdPolo">
+              {{ p.NmPolo }}
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -81,8 +81,8 @@
         <mat-form-field appearance="outline" class="campo-form hierarquia-item">
           <mat-label>Unidade</mat-label>
           <mat-select formControlName="unidade" placeholder="Selecione uma unidade">
-            <mat-option *ngFor="let u of hierarquia.unidades" [value]="u.id">
-              {{ u.nome }}
+            <mat-option *ngFor="let u of unidades" [value]="u.CdUnidade">
+              {{ u.NmUnidade }}
             </mat-option>
           </mat-select>
         </mat-form-field>

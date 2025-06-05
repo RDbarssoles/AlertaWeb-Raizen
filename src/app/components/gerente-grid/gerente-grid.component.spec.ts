@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GerenteGrid } from './gerente-grid';
+import { GerenteGridComponent } from './gerente-grid.component';
 
 describe('GerenteGrid', () => {
-  let component: GerenteGrid;
-  let fixture: ComponentFixture<GerenteGrid>;
+  let component: GerenteGridComponent;
+  let fixture: ComponentFixture<GerenteGridComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GerenteGrid]
+      imports: [GerenteGridComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(GerenteGrid);
+    fixture = TestBed.createComponent(GerenteGridComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

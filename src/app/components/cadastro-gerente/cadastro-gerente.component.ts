@@ -7,6 +7,7 @@ import { MatSort } from '@angular/material/sort';
 import { SelectionModel } from '@angular/cdk/collections';
 import { GerenteService } from '../../services/gerente.service';
 import { Gerente } from '../../models/gerente.model';
+import { MatTable } from '@angular/material/table'
 
 @Component({
   selector: 'app-cadastro-gerente',
@@ -14,10 +15,15 @@ import { Gerente } from '../../models/gerente.model';
   standalone:false,
   styleUrls: ['./cadastro-gerente.component.css']
 })
-export class CadastroGerenteComponent implements OnInit {
+export class CadastroGerenteComponent implements OnInit, AfterViewInit {
   gerenteForm: FormGroup;
+
+  
   validacoes: string[] = [];
   gridData: any[] = [];
+  polos: { CdPolo: string; NmPolo: string }[] = [];       // <— declaração da lista de polos
+  unidades: { CdUnidade: string; NmUnidade: string }[] = []; // <— (opcional) lista de unidades
+  tiposPolos: any[] = [];
   tiposGerente: any[] = [];
   hierarquia: any = {};
   // → Em vez de simplesmente any[], usamos MatTableDataSource para integração com MatPaginator/MatSort
@@ -28,6 +34,7 @@ export class CadastroGerenteComponent implements OnInit {
   // Referências ao paginator e ao sort declarados no template
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
+  @ViewChild(MatTable) table!: MatTable<any>;
 
   displayedColumns: string[] = [
     'select',
@@ -58,9 +65,22 @@ export class CadastroGerenteComponent implements OnInit {
   }
 
     ngOnInit(): void {
-    this.loadTiposGerente();
-    this.loadGridData();
+    // → Carrega polos mockados
+    this.gerenteService.getPolos().subscribe(polosApi => {
+      this.polos = polosApi;
+      console.log('Polos carregados:', this.polos);
+    });
+
+    this.gerenteService.getUnidades().subscribe(unidadesApi => {
+      this.unidades = unidadesApi;
+      console.log('Unidades carregadas:', this.unidades);
+    });
+      
+    this.loadTiposGerente(); 
+    //this.loadGridData();
   }
+
+  
 
   ngAfterViewInit(): void {
     // → Após a visualização, conecte o paginator e o sort ao dataSource
@@ -77,13 +97,16 @@ export class CadastroGerenteComponent implements OnInit {
   focarFormulario(){
     console.log('Focando no formulário');
   }
-
-   loadGridData() {
-    this.gerenteService.getGerentes().subscribe(data => {
-      // Preenche o dataSource com os dados vindos da API
-      this.dataSource.data = data;
-    });
-  }
+  // → Exemplo de método para carregar os dados da tabela (grid)
+  // Caso esteja usando uma API real, descomente e ajuste conforme necessário
+  /// AQUI CHAMA A API
+  
+  //  loadGridData() {
+  //   this.gerenteService.getGerentes().subscribe(data => {
+  //     // Preenche o dataSource com os dados vindos da API
+  //     this.dataSource.data = data;
+  //   });
+  // }
 
   /** Validação manual para exibir mensagens no painel de validações */
   validar(): boolean {
@@ -110,37 +133,96 @@ export class CadastroGerenteComponent implements OnInit {
       case 'tipoGerente': return 'Nível do Revisor';
       default: return chave;
     }
-  }/** Ação ao clicar em “Salvar” */
-  gravarUsuario() {
-    if (this.validar()) {
-      const payload = this.gerenteForm.value;
-      this.gerenteService.incluirGerente(payload).subscribe(() => {
-        this.loadGridData();
-        this.snackBar.open('Ação efetuada com sucesso.', 'OK', {
-          duration: 3000,
-          panelClass: ['snackbar-success']
-        });
-        this.gerenteForm.reset();
-        this.selection.clear();
-      }, error => {
-        this.snackBar.open(`Erro ao salvar: ${error.message}`, 'OK', {
-          duration: 3000,
-          panelClass: ['snackbar-error']
-        });
-      });
-    } else {
+  }
+  
+  /** Ação ao clicar em “Salvar” */
+  gravarUsuario(): void {
+
+    // 1) Gatilho de validação visual
+    if (!this.validar()) {
       this.snackBar.open('Existem erros no formulário.', 'OK', {
         duration: 3000,
-        panelClass: ['snackbar-warn']
+        panelClass: ['snackbar-warn'],
       });
+      return;
     }
+
+    // 2) Monta DTO no formato que a API (ou o mock) entende
+    const form = this.gerenteForm.value;
+
+    // → Ajuste: hierarquia aninhada vira campos flat (exemplo)
+    const dto = {
+      NmUsuGerente:        form.gerente.trim(),
+      CdTipoGerente:       form.tipoGerente,
+      CdNivelSequencial:   form.hierarquia.sequencialCompleto || null,
+      CdPolo:              form.hierarquia.polo               || null,
+      CdUnidade:           form.hierarquia.unidade            || null,
+    } as Gerente;                    
+
+    // 3) Chama service
+    this.gerenteService.incluirGerente(dto).subscribe({
+      next: (novoGerente) => {
+        /* ①  Acrescenta o retorno na tabela */
+        this.dataSource.data = [...this.dataSource.data, novoGerente];   // ← cria novo array ➜ dispara CD
+        // opcional, se usar paginator:
+        this.dataSource._updateChangeSubscription();
+
+        /* ②  Feedback & limpeza */
+        this.snackBar.open('Gerente salvo com sucesso!', 'OK', { duration: 3000, panelClass: ['snackbar-success'] });
+        this.gerenteForm.reset();
+        this.selection.clear();
+      },
+      error: (err) => {
+        this.snackBar.open(`Erro ao salvar: ${err.message}`, 'OK', { duration: 4000, panelClass: ['snackbar-error'] });
+      }
+    });
+  }
+
+  /* Helper para transformar o formulário no formato que a API espera */
+private _montarDto(form: any): Gerente {
+  return {
+    // ← campos que vão para o back-end
+    NmUsuGerente:        form.gerente.trim(),
+    CdTipoGerente:       form.tipoGerente,
+    CdNivelSequencial:   form.hierarquia.sequencialCompleto || null,
+    CdPolo:              form.hierarquia.polo               || null,
+    CdUnidade:           form.hierarquia.unidade            || null,
+  };
+}
+
+private _montarRegistroGrid(dto: Gerente, seq: number): any {
+  return {
+    // ← campos que a mat-table espera
+    CdSeqGerente:   seq,
+    NmUsuGerente:   dto.NmUsuGerente,
+    NmUsuarioCompleto: this._buscarNomeCompleto(dto.NmUsuGerente),
+    DsNivelCompleto:   this._gerarDescricaoNivel(dto),
+    NmPolo:            this._nomePolo(dto.CdPolo),
+    NmUnidade:         this._nomeUnidade(dto.CdUnidade),
+    NmTipoGerente:     this._nomeTipo(dto.CdTipoGerente),
+  };
+}
+  _buscarNomeCompleto(NmUsuGerente: string) {
+    throw new Error('Method not implemented.');
+  }
+  _gerarDescricaoNivel(dto: Gerente) {
+    throw new Error('Method not implemented.');
+  }
+  _nomePolo(CdPolo: number | undefined) {
+    throw new Error('Method not implemented.');
+  }
+  _nomeUnidade(CdUnidade: number | undefined) {
+    throw new Error('Method not implemented.');
+  }
+  _nomeTipo(CdTipoGerente: string | number) {
+    throw new Error('Method not implemented.');
   }
 
   /** Ação ao clicar em “Excluir” em cada linha */
   removerGerente(row: any) {
     if (confirm('Deseja realmente remover esse Revisor?')) {
       this.gerenteService.excluirGerente(row).subscribe(() => {
-        this.loadGridData();
+        //this.loadGridData();
         this.snackBar.open('Exclusão efetuada com sucesso.', 'OK', {
           duration: 3000,
           panelClass: ['snackbar-success']
