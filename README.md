@@ -102,3 +102,153 @@ Verifique as versões executando:
 node -v
 npm -v
 ng version
+
+## Instalação
+Clone este repositório
+
+bash
+Copy
+Edit
+git clone https://github.com/seu-usuario/AlertaWeb-Raizen.git
+cd AlertaWeb-Raizen
+Instale as dependências
+
+bash
+Copy
+Edit
+npm install
+Verifique se em angular.json a seção de estilos aponta para src/styles.scss:
+
+jsonc
+Copy
+Edit
+"styles": [
+  "src/styles.scss"
+]
+Confirme que os arquivos de tema existem:
+
+src/custom-theme.scss
+
+src/styles.scss
+
+## Como Rodar
+Para executar a aplicação em modo de desenvolvimento:
+
+bash
+Copy
+Edit
+ng serve
+Acesse no navegador: http://localhost:4200
+
+Qualquer alteração no código será recompilada e recarregada automaticamente.
+
+## Estrutura de Pastas
+java
+Copy
+Edit
+AlertaWeb-Raizen/
+├── src/
+│   ├── app/
+│   │   ├── components/
+│   │   │   └── cadastro-gerente/
+│   │   │       ├── cadastro-gerente.component.ts
+│   │   │       ├── cadastro-gerente.component.html
+│   │   │       └── cadastro-gerente.component.css
+│   │   ├── models/
+│   │   │   └── gerente.model.ts
+│   │   ├── services/
+│   │   │   └── gerente.service.ts
+│   │   └── app.module.ts
+│   ├── assets/
+│   │   └── (ícones, imagens, etc.)
+│   ├── custom-theme.scss      ← Tema Material (roxo + verde)
+│   ├── styles.scss            ← Importa custom-theme e estilos globais
+│   ├── index.html
+│   └── main.ts
+├── angular.json
+├── package.json
+└── README.md                  ← Este arquivo
+components/cadastro-gerente/: Componente de cadastro e tabela de gerentes, com lógica de gravação e exclusão.
+
+models/gerente.model.ts: Interface TypeScript que define a estrutura de um objeto Gerente.
+
+services/gerente.service.ts: Serviço mock que gerencia a lista de gerentes em memória e utiliza um contador interno (nextId) para gerar IDs sequenciais.
+
+custom-theme.scss: Define as paletas de cores (roxo e verde) e aplica o tema em todos os componentes Angular Material.
+
+styles.scss: Importa o custom-theme.scss via @use e contém estilos globais do projeto (fontes, resets, background, etc.).
+
+## Customização de Tema
+Para aplicar as cores originais da Raízen (roxo e verde) no Angular Material:
+
+Crie ou edite src/custom-theme.scss:
+
+scss
+Copy
+Edit
+@use '@angular/material' as mat;
+
+// Paleta PRIMARY: roxo 500
+$raizen-primary-palette: mat.define-palette(mat.$purple-palette, 500);
+
+// Paleta ACCENT: verde 500 (variantes 300, 700)
+$raizen-accent-palette: mat.define-palette(mat.$green-palette, 500, 300, 700);
+
+// (Opcional) Paleta WARN customizada:
+// $raizen-warn-palette: mat.define-palette(mat.$green-palette, 900);
+
+$raizen-theme: mat.define-light-theme((
+  color: (
+    primary: $raizen-primary-palette,
+    accent:  $raizen-accent-palette,
+    // warn:    $raizen-warn-palette
+  )
+));
+
+@include mat.core();
+@include mat.all-component-themes($raizen-theme);
+Edite src/styles.scss para usar o tema:
+
+scss
+Copy
+Edit
+@use './custom-theme' as _raizenTheme;
+
+body {
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+  background-color: #fafafa;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+Nos templates, utilize:
+
+html
+Copy
+Edit
+<!-- Botão roxo -->
+<button mat-flat-button color="primary">Salvar</button>
+
+<!-- Botão verde -->
+<button mat-stroked-button color="accent">Cancelar</button>
+Contribuindo
+Contribuições são bem-vindas! Caso queira melhorar este projeto:
+
+## Faça um fork deste repositório.
+
+Crie uma branch para a sua feature ou correção:
+
+bash
+Copy
+Edit
+git checkout -b feature/nome-da-feature
+Faça as alterações necessárias e confirme em commits claros:
+
+bash
+Copy
+Edit
+git commit -m "Adiciona funcionalidade X"
+Envie sua branch para o seu fork e abra um Pull Request.
+
